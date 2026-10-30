@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Catalog – Admin FOREVERR{% endblock %}
+
+{% block content %}
+
+<div style="margin-bottom: 24px;">
+  <a href="{{ url_for('admin_dashboard') }}" style="color:var(--primary); font-size:0.9rem; font-weight:600;">
+    <i class="fa fa-arrow-left"></i> Back to Admin Dashboard
+  </a>
+  <h1 style="font-size: 2.2rem; margin-top: 8px;">Product Catalog Management</h1>
+  <p style="color:var(--text-muted);">Oversee all products listed across all seller accounts ({{ products|length }} items)</p>
+</div>
+
+<div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+  <table class="cart-table">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Product Name</th>
+        <th>Seller</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in products %}
+        <tr>
+          <td>
+            <img src="{{ p.image or 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80' }}" alt="{{ p.name }}" style="width:48px; height:48px; object-fit:cover; border-radius:4px;">
+          </td>
+          <td>
+            <a href="{{ url_for('product_detail', product_id=p.id) }}" style="font-weight:600; color:var(--primary);">
+              {{ p.name }}
+            </a>
+          </td>
+          <td>{{ p.seller.name if p.seller else 'System' }}</td>
+          <td>{{ p.category.name if p.category else 'N/A' }}</td>
+          <td style="font-weight:600;">₹{{ "%.2f"|format(p.price) }}</td>
+          <td>{{ p.stock }} units</td>
+          <td>
+            <a href="{{ url_for('admin_delete_product', product_id=p.id) }}" class="btn btn-danger btn-sm confirm-delete" data-item-name="{{ p.name }}" title="Delete Listing">
+              <i class="fa fa-trash"></i> Delete
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

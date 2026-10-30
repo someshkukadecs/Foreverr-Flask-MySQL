@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In – FOREVERR{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-header">
+    <h2>Welcome Back</h2>
+    <p style="color:var(--text-muted); font-size:0.9rem;">Sign in using your registered email and 6-digit password</p>
+  </div>
+
+  <form action="{{ url_for('login') }}" method="POST">
+    <div class="form-group">
+      <label class="form-label" for="email">Email Address</label>
+      <input type="email" id="email" name="email" class="form-control" placeholder="name@example.com" required autofocus>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">6-Digit Password</label>
+      <input type="password" id="password" name="password" class="form-control" placeholder="••••••" maxlength="6" minlength="6" required>
+      <div class="form-hint">Enter your exact 6-character / 6-digit password</div>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:10px;">
+      Sign In
+    </button>
+  </form>
+
+  <!-- Demo Accounts Quick Reference for College Presentation -->
+  <div style="margin-top:24px; padding:14px; background:#f5f1e6; border-radius:6px; font-size:0.82rem; border-left:3px solid var(--gold);">
+    <strong>🎓 College Viva Demo Credentials:</strong>
+    <ul style="margin:6px 0 0 16px; padding:0; line-height:1.5;">
+      <li><strong>Buyer:</strong> <code>buyer@foreverr.com</code> | Pass: <code>123456</code></li>
+      <li><strong>Seller:</strong> <code>seller@foreverr.com</code> | Pass: <code>123456</code></li>
+      <li><strong>Admin:</strong> <code>admin@foreverr.com</code> | Pass: <code>123456</code></li>
+    </ul>
+  </div>
+
+  <div style="text-align:center; margin-top:20px; font-size:0.9rem;">
+    Don't have an account? <a href="{{ url_for('register') }}" style="color:var(--primary); font-weight:600;">Create an Account</a>
+  </div>
+</div>
+{% endblock %}

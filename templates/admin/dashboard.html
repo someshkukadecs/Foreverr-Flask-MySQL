@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Administrator Control Center – FOREVERR{% endblock %}
+
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:16px;">
+  <div>
+    <h1 style="font-size:2.2rem; margin-bottom:4px;">Admin Control Center</h1>
+    <p style="color:var(--text-muted);">Platform statistics, user management, and payment reconciliation</p>
+  </div>
+  <div style="display:flex; gap:10px;">
+    <a href="{{ url_for('admin_users') }}" class="btn btn-outline btn-sm"><i class="fa fa-users"></i> Users</a>
+    <a href="{{ url_for('admin_products') }}" class="btn btn-outline btn-sm"><i class="fa fa-gem"></i> Products</a>
+    <a href="{{ url_for('admin_orders') }}" class="btn btn-outline btn-sm"><i class="fa fa-receipt"></i> Orders</a>
+    <a href="{{ url_for('admin_categories') }}" class="btn btn-outline btn-sm"><i class="fa fa-tags"></i> Categories</a>
+  </div>
+</div>
+
+<!-- Key System Metrics -->
+<div class="dashboard-metrics">
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fa fa-users"></i></div>
+    <div class="metric-data">
+      <h4>{{ total_users }}</h4>
+      <p>Total Users ({{ total_buyers }} Buyers / {{ total_sellers }} Sellers)</p>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fa fa-gem"></i></div>
+    <div class="metric-data">
+      <h4>{{ total_products }}</h4>
+      <p>Catalog Products</p>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fa fa-shopping-bag"></i></div>
+    <div class="metric-data">
+      <h4>{{ total_orders }}</h4>
+      <p>Orders Placed</p>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fa fa-rupee-sign"></i></div>
+    <div class="metric-data">
+      <h4>₹{{ "%.2f"|format(total_revenue) }}</h4>
+      <p>Gross Platform Sales</p>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT SUMMARY SECTION (Explicit Requirement) -->
+<div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:28px; box-shadow:var(--shadow-sm); margin-bottom:32px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border-light); padding-bottom:12px;">
+    <h3 style="font-size:1.35rem; color:var(--primary); display:flex; align-items:center; gap:8px;">
+      <i class="fa fa-wallet"></i> Payment Summary & Mode Breakdown
+    </h3>
+    <span style="font-weight:700; font-size:1.15rem; color:var(--primary);">
+      Total Revenue: ₹{{ "%.2f"|format(total_revenue) }}
+    </span>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin-bottom:20px;">
+    <div style="background:#faf8f2; padding:18px; border-radius:8px; border-left:4px solid var(--primary);">
+      <div style="color:var(--text-muted); font-size:0.85rem; font-weight:600;">UPI PAYMENTS</div>
+      <div style="font-size:1.6rem; font-weight:700; color:var(--primary); margin:4px 0;">{{ upi_orders }}</div>
+      <small style="color:#666;">Instant online payments</small>
+    </div>
+
+    <div style="background:#faf8f2; padding:18px; border-radius:8px; border-left:4px solid #1976d2;">
+      <div style="color:var(--text-muted); font-size:0.85rem; font-weight:600;">CREDIT / DEBIT CARDS</div>
+      <div style="font-size:1.6rem; font-weight:700; color:#1976d2; margin:4px 0;">{{ card_orders }}</div>
+      <small style="color:#666;">Visa / MasterCard / RuPay</small>
+    </div>
+
+    <div style="background:#faf8f2; padding:18px; border-radius:8px; border-left:4px solid #f57f17;">
+      <div style="color:var(--text-muted); font-size:0.85rem; font-weight:600;">NET BANKING</div>
+      <div style="font-size:1.6rem; font-weight:700; color:#f57f17; margin:4px 0;">{{ net_orders }}</div>
+      <small style="color:#666;">SBI, HDFC, ICICI, etc.</small>
+    </div>
+
+    <div style="background:#faf8f2; padding:18px; border-radius:8px; border-left:4px solid #795548;">
+      <div style="color:var(--text-muted); font-size:0.85rem; font-weight:600;">CASH ON DELIVERY (COD)</div>
+      <div style="font-size:1.6rem; font-weight:700; color:#795548; margin:4px 0;">{{ cod_orders }}</div>
+      <small style="color:#666;">Doorstep cash settlements</small>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:24px; font-size:0.95rem; border-top:1px dashed var(--border-light); padding-top:14px;">
+    <div><strong>Successful Payments:</strong> <span class="badge" style="background:var(--success);">{{ successful_payments }}</span></div>
+    <div><strong>Pending Payments:</strong> <span class="badge" style="background:var(--warning); color:#333;">{{ pending_payments }}</span></div>
+  </div>
+</div>
+
+<!-- Recent Orders Table -->
+<div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+    <h3 style="font-size:1.3rem;">Recent Transactions</h3>
+    <a href="{{ url_for('admin_orders') }}" class="btn btn-outline btn-sm">View All Orders</a>
+  </div>
+
+  {% if recent_orders %}
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Buyer Name</th>
+          <th>Amount</th>
+          <th>Payment Mode</th>
+          <th>Payment Status</th>
+          <th>Order Status</th>
+          <th>Placed On</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in recent_orders %}
+          <tr>
+            <td><strong>#{{ o.id }}</strong></td>
+            <td>{{ o.delivery_name }}</td>
+            <td style="font-weight:600;">₹{{ "%.2f"|format(o.final_amount) }}</td>
+            <td><span class="badge" style="background:#e8f0eb; color:var(--primary);">{{ o.payment_method }}</span></td>
+            <td>
+              {% if o.payment_status == 'Success' %}
+                <span class="badge" style="background:var(--success);">Success</span>
+              {% else %}
+                <span class="badge" style="background:var(--warning); color:#333;">Pending</span>
+              {% endif %}
+            </td>
+            <td><span class="badge" style="background:var(--primary);">{{ o.status }}</span></td>
+            <td style="font-size:0.85rem; color:#666;">{{ o.created_at.strftime('%d/%m/%Y') }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p style="color:var(--text-muted);">No orders recorded yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout – FOREVERR{% endblock %}
+
+{% block content %}
+
+<div style="margin-bottom: 24px;">
+  <h1 style="font-size: 2.2rem; margin-bottom: 6px;">Secure Checkout</h1>
+  <p style="color:var(--text-muted);">Please provide your delivery information and select a preferred payment mode.</p>
+</div>
+
+<form action="{{ url_for('place_order') }}" method="POST" id="checkoutForm">
+  <div class="checkout-grid">
+    
+    <!-- LEFT COLUMN: DELIVERY ADDRESS & PAYMENT MODES -->
+    <div>
+      <!-- 1. Delivery Details Section -->
+      <div class="checkout-card">
+        <h3 style="font-size:1.3rem; margin-bottom:18px; color:var(--primary); display:flex; align-items:center; gap:8px;">
+          <i class="fa fa-map-marker-alt"></i> 1. Delivery Details
+        </h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="form-group">
+            <label class="form-label" for="name">Full Name</label>
+            <input type="text" id="name" name="name" class="form-control" value="{{ user.name if user else '' }}" required placeholder="e.g. Sophia Sharma">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" value="{{ user.email if user else '' }}" required placeholder="sophia@example.com">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" class="form-control" placeholder="10-digit mobile number (e.g. 9876543210)" required pattern="[0-9]{10}">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="address">Street Address / Apartment</label>
+          <input type="text" id="address" name="address" class="form-control" placeholder="Flat No., Building Name, Street" required>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="city">City</label>
+            <input type="text" id="city" name="city" class="form-control" placeholder="e.g. Mumbai" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="state">State</label>
+            <input type="text" id="state" name="state" class="form-control" placeholder="e.g. Maharashtra" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pincode">Pincode</label>
+            <input type="text" id="pincode" name="pincode" class="form-control" placeholder="e.g. 400001" required pattern="[0-9]{6}">
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Payment Method Section -->
+      <div class="checkout-card">
+        <h3 style="font-size:1.3rem; margin-bottom:18px; color:var(--primary); display:flex; align-items:center; gap:8px;">
+          <i class="fa fa-credit-card"></i> 2. Payment Method
+        </h3>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:14px;">
+          Select a payment mode. Online transactions are instantly simulated for college demo.
+        </p>
+
+        <!-- 4 Payment Options -->
+        <div class="payment-options-grid">
+          <!-- Option 1: Cash on Delivery -->
+          <label for="pay_COD" class="payment-option-label active">
+            <input type="radio" id="pay_COD" name="payment_method" value="COD" checked>
+            <span><i class="fa fa-money-bill-wave"></i> Cash on Delivery</span>
+          </label>
+
+          <!-- Option 2: UPI -->
+          <label for="pay_UPI" class="payment-option-label">
+            <input type="radio" id="pay_UPI" name="payment_method" value="UPI">
+            <span><i class="fa fa-mobile-alt"></i> UPI (Instant)</span>
+          </label>
+
+          <!-- Option 3: Credit/Debit Card -->
+          <label for="pay_CARD" class="payment-option-label">
+            <input type="radio" id="pay_CARD" name="payment_method" value="CARD">
+            <span><i class="fa fa-credit-card"></i> Credit / Debit Card</span>
+          </label>
+
+          <!-- Option 4: Net Banking -->
+          <label for="pay_NET_BANKING" class="payment-option-label">
+            <input type="radio" id="pay_NET_BANKING" name="payment_method" value="NET_BANKING">
+            <span><i class="fa fa-university"></i> Net Banking</span>
+          </label>
+        </div>
+
+        <!-- Dynamic Payment Specific Fields -->
+        
+        <!-- COD Details -->
+        <div id="payment-details-cod" class="payment-details-box" style="display:block;">
+          <p style="font-size:0.92rem; color:#2e7d32;">
+            <i class="fa fa-check-circle"></i> Pay with cash or QR scanner at your doorstep when your order is delivered.
+          </p>
+        </div>
+
+        <!-- UPI Details -->
+        <div id="payment-details-upi" class="payment-details-box" style="display:none;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="upi_id">Virtual Payment Address / UPI ID</label>
+            <input type="text" id="upi_id" name="upi_id" class="form-control" placeholder="username@okhdfcbank or 9876543210@paytm">
+            <div class="form-hint">Simulated payment will automatically approve upon submission.</div>
+          </div>
+        </div>
+
+        <!-- Card Details -->
+        <div id="payment-details-card" class="payment-details-box" style="display:none;">
+          <div class="form-group">
+            <label class="form-label" for="card_number">Card Number</label>
+            <input type="text" id="card_number" name="card_number" class="form-control" placeholder="XXXX XXXX XXXX 1234" maxlength="19">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="card_holder">Card Holder Name</label>
+            <input type="text" id="card_holder" name="card_holder" class="form-control" placeholder="Name printed on card">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="card_expiry">Expiry Date</label>
+              <input type="text" id="card_expiry" name="card_expiry" class="form-control" placeholder="MM/YY" maxlength="5">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="card_cvv">CVV</label>
+              <input type="password" id="card_cvv" name="card_cvv" class="form-control" placeholder="•••" maxlength="4">
+            </div>
+          </div>
+          <div class="form-hint" style="margin-top:6px;">For academic demo purposes: No real card information is stored in the database.</div>
+        </div>
+
+        <!-- Net Banking Details -->
+        <div id="payment-details-netbanking" class="payment-details-box" style="display:none;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="bank_name">Select Bank</label>
+            <select id="bank_name" name="bank_name" class="form-control">
+              <option value="">-- Choose Your Bank --</option>
+              <option value="SBI">State Bank of India (SBI)</option>
+              <option value="HDFC Bank">HDFC Bank</option>
+              <option value="ICICI Bank">ICICI Bank</option>
+              <option value="Axis Bank">Axis Bank</option>
+              <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+              <option value="Other">Other Nationalized Bank</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: ORDER SUMMARY -->
+    <div>
+      <div class="order-summary-card">
+        <h3 style="font-size:1.3rem; margin-bottom:18px; border-bottom:1px solid var(--border-light); padding-bottom:12px;">
+          Order Summary ({{ cart_items|length }} items)
+        </h3>
+
+        <!-- Items list preview -->
+        <div style="max-height:240px; overflow-y:auto; margin-bottom:18px; padding-right:6px;">
+          {% for item in cart_items %}
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:0.9rem;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <img src="{{ item.product.image or 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80' }}" alt="{{ item.product.name }}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;">
+                <div>
+                  <div style="font-weight:600; color:var(--text-dark);">{{ item.product.name }}</div>
+                  <small style="color:var(--text-muted);">Qty: {{ item.quantity }} × ₹{{ "%.2f"|format(item.product.price) }}</small>
+                </div>
+              </div>
+              <div style="font-weight:600;">₹{{ "%.2f"|format(item.item_total) }}</div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>₹{{ "%.2f"|format(totals.subtotal) }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Promotional Discount</span>
+          <span style="color:var(--danger);">-₹{{ "%.2f"|format(totals.discount_amount) }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Delivery Charge</span>
+          <span>
+            {% if totals.shipping_amount == 0 %}
+              <strong style="color:var(--success);">FREE</strong>
+            {% else %}
+              ₹{{ "%.2f"|format(totals.shipping_amount) }}
+            {% endif %}
+          </span>
+        </div>
+
+        <div class="summary-row summary-total">
+          <span>Total Amount</span>
+          <span>₹{{ "%.2f"|format(totals.final_amount) }}</span>
+        </div>
+
+        <div style="margin-top:24px;">
+          <button type="submit" class="btn btn-gold btn-block btn-lg">
+            <i class="fa fa-lock"></i> PLACE ORDER NOW
+          </button>
+        </div>
+
+        <div style="text-align:center; font-size:0.78rem; color:var(--text-muted); margin-top:14px;">
+          🔒 256-Bit SSL Encrypted & Protected
+        </div>
+      </div>
+    </div>
+
+  </div>
+</form>
+
+{% endblock %}

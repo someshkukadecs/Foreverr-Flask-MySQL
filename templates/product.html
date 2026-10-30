@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} – FOREVERR{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumbs -->
+<div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px;">
+  <a href="{{ url_for('index') }}">Home</a> &gt;
+  <a href="{{ url_for('products') }}">Shop</a> &gt;
+  <span>{{ product.name }}</span>
+</div>
+
+<!-- Product Details Card -->
+<div class="product-detail-layout">
+  <!-- Large Image Section -->
+  <div class="detail-gallery">
+    <img src="{{ product.image or 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80' }}" alt="{{ product.name }}">
+  </div>
+
+  <!-- Content & Buying Controls -->
+  <div class="detail-content">
+    <div class="detail-badge-row">
+      <span class="role-tag">{{ product.category.name if product.category else 'Exclusive' }}</span>
+      {% if product.discount > 0 %}
+        <span class="badge-discount">-{{ product.discount }}% OFF</span>
+      {% endif %}
+      {% if product.stock > 0 %}
+        <span class="badge" style="background:#2e7d32;">In Stock ({{ product.stock }})</span>
+      {% else %}
+        <span class="badge" style="background:#d32f2f;">Out of Stock</span>
+      {% endif %}
+    </div>
+
+    <h1 class="detail-title">{{ product.name }}</h1>
+
+    <!-- Rating Summary -->
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; color:var(--gold);">
+      <div>
+        {% set avg_int = product.average_rating|int %}
+        {% for i in range(5) %}
+          {% if i < avg_int %}
+            <i class="fa fa-star"></i>
+          {% else %}
+            <i class="far fa-star"></i>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <span style="color:var(--text-dark); font-weight:600; font-size:0.95rem;">{{ product.average_rating if product.average_rating > 0 else '5.0' }}</span>
+      <span style="color:var(--text-muted); font-size:0.85rem;">({{ product.reviews|length }} customer reviews)</span>
+    </div>
+
+    <!-- Pricing Box -->
+    <div class="detail-price-box">
+      <span class="price-current">₹{{ "%.2f"|format(product.price) }}</span>
+      {% if product.original_price and product.original_price > product.price %}
+        <span class="price-original">MRP ₹{{ "%.2f"|format(product.original_price) }}</span>
+        <span style="color:var(--danger); font-weight:600; font-size:0.95rem;">Save {{ product.discount }}%</span>
+      {% endif %}
+    </div>
+
+    <!-- Description -->
+    <div class="detail-description">
+      <p>{{ product.description or 'A classic design showcasing superior craftsmanship. Perfectly suited for personal accessorizing or heartfelt gifting.' }}</p>
+    </div>
+
+    <!-- Purchase Actions -->
+    {% if product.stock > 0 %}
+      <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" style="margin-bottom:24px;">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:18px;">
+          <label style="font-weight:600; font-size:0.95rem;">Quantity:</label>
+          <div class="quantity-control">
+            <button type="button" class="qty-btn qty-minus">-</button>
+            <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="qty-input" readonly>
+            <button type="button" class="qty-btn qty-plus">+</button>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+          <button type="submit" name="buy_now" value="0" class="btn btn-primary btn-lg" style="flex:1;">
+            <i class="fa fa-shopping-bag"></i> Add to Cart
+          </button>
+          <button type="submit" name="buy_now" value="1" class="btn btn-gold btn-lg" style="flex:1;">
+            <i class="fa fa-bolt"></i> Buy Now
+          </button>
+          <a href="{{ url_for('add_to_wishlist', product_id=product.id) }}" class="btn btn-outline btn-lg" title="Add to Wishlist">
+            <i class="fa fa-heart" {% if in_wishlist %}style="color:#e53935;"{% endif %}></i>
+          </a>
+        </div>
+      </form>
+    {% else %}
+      <div style="padding:16px; background:#ffebee; border-radius:6px; color:#c62828; margin-bottom:20px; font-weight:500;">
+        <i class="fa fa-exclamation-triangle"></i> This item is currently out of stock. Check back soon!
+      </div>
+      <a href="{{ url_for('add_to_wishlist', product_id=product.id) }}" class="btn btn-outline">
+        <i class="far fa-heart"></i> Add to Wishlist for Restock Alert
+      </a>
+    {% endif %}
+
+    <!-- Value Props -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:auto; padding-top:20px; border-top:1px solid var(--border-light); font-size:0.85rem; color:var(--text-muted);">
+      <div><i class="fa fa-truck" style="color:var(--primary); margin-right:6px;"></i> Free Shipping above ₹999</div>
+      <div><i class="fa fa-certificate" style="color:var(--primary); margin-right:6px;"></i> 100% Certified Authentic</div>
+      <div><i class="fa fa-undo" style="color:var(--primary); margin-right:6px;"></i> Easy 7-Day Returns</div>
+      <div><i class="fa fa-shield-alt" style="color:var(--primary); margin-right:6px;"></i> Secure Payment Simulation</div>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Reviews Section -->
+<section style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:32px; margin-bottom:48px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:16px;">
+    <div>
+      <h2 style="font-size:1.8rem; margin-bottom:4px;">Customer Reviews & Ratings</h2>
+      <p style="color:var(--text-muted); font-size:0.9rem;">Verified feedback from recent buyers</p>
+    </div>
+    <div style="font-size:1.6rem; font-weight:700; color:var(--primary);">
+      ⭐ {{ product.average_rating if product.average_rating > 0 else '5.0' }} / 5.0
+    </div>
+  </div>
+
+  <!-- Review List -->
+  <div style="margin-bottom:32px;">
+    {% for review in product.reviews %}
+      <div style="padding:16px 0; border-bottom:1px solid var(--border-light);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <strong>{{ review.buyer.name }}</strong>
+          <span style="color:var(--gold);">
+            {% for i in range(review.rating) %}<i class="fa fa-star"></i>{% endfor %}
+          </span>
+        </div>
+        <p style="color:#444; font-size:0.95rem; margin-bottom:4px;">{{ review.comment }}</p>
+        <small style="color:var(--text-muted); font-size:0.75rem;">{{ review.created_at.strftime('%d %B %Y') }}</small>
+      </div>
+    {% else %}
+      <p style="color:var(--text-muted); font-style:italic;">No customer reviews yet. Be the first to share your experience!</p>
+    {% endfor %}
+  </div>
+
+  <!-- Add Review Form (Logged In Buyers) -->
+  <div style="background:#faf8f2; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px;">
+    <h3 style="font-size:1.3rem; margin-bottom:12px;">Write a Product Review</h3>
+    {% if current_user %}
+      <form action="{{ url_for('add_review', product_id=product.id) }}" method="POST">
+        <div class="form-group">
+          <label class="form-label">Your Rating (1 to 5 Stars):</label>
+          <select name="rating" class="form-control" style="max-width:200px;" required>
+            <option value="5">⭐⭐⭐⭐⭐ (5 Stars - Excellent)</option>
+            <option value="4">⭐⭐⭐⭐ (4 Stars - Good)</option>
+            <option value="3">⭐⭐⭐ (3 Stars - Average)</option>
+            <option value="2">⭐⭐ (2 Stars - Fair)</option>
+            <option value="1">⭐ (1 Star - Poor)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Review Comment:</label>
+          <textarea name="comment" rows="3" class="form-control" placeholder="Tell us what you liked about this piece..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
+      </form>
+    {% else %}
+      <p style="color:var(--text-muted); font-size:0.9rem;">
+        Please <a href="{{ url_for('login') }}" style="color:var(--primary); font-weight:600;">sign in</a> to submit a customer review.
+      </p>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Related Products Section (Algorithm 6) -->
+<section style="margin-bottom:40px;">
+  <div class="section-header">
+    <span class="section-tag">Algorithm-Generated Recommendations</span>
+    <h2 class="section-title">You May Also Love</h2>
+  </div>
+
+  <div class="product-grid">
+    {% for rel in related_products %}
+      <div class="product-card">
+        <div class="product-badge-wrap">
+          {% if rel.discount > 0 %}
+            <span class="badge-discount">-{{ rel.discount }}%</span>
+          {% endif %}
+        </div>
+        <a href="{{ url_for('product_detail', product_id=rel.id) }}" class="product-image-wrap">
+          <img src="{{ rel.image or 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80' }}" alt="{{ rel.name }}">
+        </a>
+        <div class="product-info">
+          <h3 class="product-title"><a href="{{ url_for('product_detail', product_id=rel.id) }}">{{ rel.name }}</a></h3>
+          <div class="product-price-row">
+            <span class="price-current">₹{{ "%.2f"|format(rel.price) }}</span>
+            {% if rel.original_price and rel.original_price > rel.price %}
+              <span class="price-original">₹{{ "%.2f"|format(rel.original_price) }}</span>
+            {% endif %}
+          </div>
+          <div class="product-actions">
+            <a href="{{ url_for('product_detail', product_id=rel.id) }}" class="btn btn-outline btn-sm btn-block">View Item</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}

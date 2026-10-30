@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.id }} Details – FOREVERR{% endblock %}
+
+{% block content %}
+
+<div style="margin-bottom: 24px;">
+  <a href="{{ url_for('orders') }}" style="color:var(--primary); font-size:0.9rem; font-weight:600;">
+    <i class="fa fa-arrow-left"></i> Back to Orders
+  </a>
+  <h1 style="font-size: 2.2rem; margin-top: 8px;">Order #{{ order.id }}</h1>
+  <p style="color:var(--text-muted);">Placed on {{ order.created_at.strftime('%d %B %Y, %I:%M %p') }}</p>
+</div>
+
+<!-- Tracking Timeline -->
+<div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:32px 24px; box-shadow:var(--shadow-sm); margin-bottom:32px;">
+  <h3 style="font-size:1.15rem; margin-bottom:20px; color:var(--primary);">
+    <i class="fa fa-map-signs"></i> Order Tracking Timeline
+  </h3>
+
+  <div class="timeline">
+    {% for step in timeline_steps %}
+      <div class="timeline-step {% if step.state == 'completed' %}completed{% elif step.state == 'active' %}active{% endif %}">
+        <div class="step-circle">
+          {% if step.state == 'completed' %}
+            <i class="fa fa-check"></i>
+          {% elif step.state == 'active' %}
+            <i class="fa fa-circle" style="font-size:0.6rem;"></i>
+          {% else %}
+            <span>{{ loop.index }}</span>
+          {% endif %}
+        </div>
+        <div class="step-label">{{ step.name }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="checkout-grid">
+  <!-- LEFT: ORDER ITEMS -->
+  <div>
+    <div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm); margin-bottom:24px;">
+      <h3 style="font-size:1.2rem; margin-bottom:18px; border-bottom:1px solid var(--border-light); padding-bottom:10px;">
+        Items in this Order ({{ order.items|length }})
+      </h3>
+
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        {% for item in order.items %}
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-light); padding-bottom:14px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              {% if item.product and item.product.image %}
+                <img src="{{ item.product.image }}" alt="{{ item.product.name }}" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
+              {% endif %}
+              <div>
+                <h4 style="font-size:1rem; margin-bottom:4px;">
+                  {% if item.product %}
+                    <a href="{{ url_for('product_detail', product_id=item.product.id) }}">{{ item.product.name }}</a>
+                  {% else %}
+                    Artisan Piece
+                  {% endif %}
+                </h4>
+                <div style="font-size:0.85rem; color:var(--text-muted);">
+                  Quantity: {{ item.quantity }} × ₹{{ "%.2f"|format(item.price) }}
+                </div>
+              </div>
+            </div>
+            <div style="font-weight:700; color:var(--primary); font-size:1.05rem;">
+              ₹{{ "%.2f"|format(item.item_total) }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Delivery Address Card -->
+    <div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+      <h3 style="font-size:1.2rem; margin-bottom:14px; border-bottom:1px solid var(--border-light); padding-bottom:10px;">
+        Delivery Destination
+      </h3>
+      <p style="font-weight:600; margin-bottom:4px;">{{ order.delivery_name }}</p>
+      <p style="color:#555; font-size:0.92rem; line-height:1.5;">
+        {{ order.delivery_address }}<br>
+        {{ order.delivery_city }}, {{ order.delivery_state }} - {{ order.delivery_pincode }}<br>
+        <strong>Phone:</strong> {{ order.delivery_phone }}<br>
+        <strong>Email:</strong> {{ order.delivery_email }}
+      </p>
+    </div>
+  </div>
+
+  <!-- RIGHT: PAYMENT & PRICE BREAKDOWN -->
+  <div>
+    <div class="order-summary-card">
+      <h3 style="font-size:1.2rem; margin-bottom:18px; border-bottom:1px solid var(--border-light); padding-bottom:10px;">
+        Payment & Billing
+      </h3>
+
+      <div class="summary-row">
+        <span>Payment Method</span>
+        <strong style="color:var(--primary);">{{ order.payment_method }}</strong>
+      </div>
+
+      <div class="summary-row">
+        <span>Payment Status</span>
+        <span>
+          {% if order.payment_status == 'Success' %}
+            <span class="badge" style="background:var(--success);">Success</span>
+          {% else %}
+            <span class="badge" style="background:var(--warning); color:#333;">Pending</span>
+          {% endif %}
+        </span>
+      </div>
+
+      {% if order.transaction_id and order.transaction_id != 'N/A' %}
+        <div class="summary-row">
+          <span>Transaction ID</span>
+          <code style="font-size:0.85rem;">{{ order.transaction_id }}</code>
+        </div>
+      {% endif %}
+
+      <div class="summary-row" style="margin-top:14px; border-top:1px dashed var(--border-light); padding-top:12px;">
+        <span>Subtotal</span>
+        <span>₹{{ "%.2f"|format(order.total_amount) }}</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Discount</span>
+        <span style="color:var(--danger);">-₹{{ "%.2f"|format(order.discount_amount) }}</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Delivery Fee</span>
+        <span>
+          {% if order.shipping_amount == 0 %}
+            <strong style="color:var(--success);">FREE</strong>
+          {% else %}
+            ₹{{ "%.2f"|format(order.shipping_amount) }}
+          {% endif %}
+        </span>
+      </div>
+
+      <div class="summary-row summary-total">
+        <span>Total Paid</span>
+        <span>₹{{ "%.2f"|format(order.final_amount) }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

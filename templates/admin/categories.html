@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Categories – Admin FOREVERR{% endblock %}
+
+{% block content %}
+
+<div style="margin-bottom: 24px;">
+  <a href="{{ url_for('admin_dashboard') }}" style="color:var(--primary); font-size:0.9rem; font-weight:600;">
+    <i class="fa fa-arrow-left"></i> Back to Admin Dashboard
+  </a>
+  <h1 style="font-size: 2.2rem; margin-top: 8px;">Product Categories</h1>
+  <p style="color:var(--text-muted);">Organize your marketplace taxonomy and product departments</p>
+</div>
+
+<div class="checkout-grid">
+  <!-- List of Categories -->
+  <div>
+    <div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+      <h3 style="font-size:1.25rem; margin-bottom:18px;">Existing Categories ({{ categories|length }})</h3>
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Category Name</th>
+            <th>Products Count</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cat in categories %}
+            <tr>
+              <td><strong>#{{ cat.id }}</strong></td>
+              <td style="font-weight:600;">{{ cat.name }}</td>
+              <td>{{ cat.products|length }} items</td>
+              <td>
+                <a href="{{ url_for('admin_delete_category', cat_id=cat.id) }}" class="btn btn-danger btn-sm confirm-delete" data-item-name="{{ cat.name }}">
+                  <i class="fa fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add Category Form -->
+  <div>
+    <div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+      <h3 style="font-size:1.25rem; margin-bottom:18px; color:var(--primary);">
+        <i class="fa fa-plus-circle"></i> Add New Category
+      </h3>
+      <form action="{{ url_for('admin_categories') }}" method="POST">
+        <div class="form-group">
+          <label class="form-label" for="cat_name">Category Name</label>
+          <input type="text" id="cat_name" name="name" class="form-control" placeholder="e.g. Wedding Keepsakes" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Add Category</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

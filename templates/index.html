@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}FOREVERR – Discover Something Made For You{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<section class="hero-section">
+  <div class="hero-subtitle">New Spring Collection 2026</div>
+  <h1 class="hero-title">Discover Something Made For You</h1>
+  <p class="hero-description">
+    Handcrafted demi-fine jewellery, custom engraved keepsakes, and charming accessories.
+    Minimalist elegance crafted for lifetime memories.
+  </p>
+  <div style="display:flex; justify-content:center; gap:16px;">
+    <a href="{{ url_for('products') }}" class="btn btn-gold btn-lg">
+      Shop The Collection <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+</section>
+
+<!-- Shop by Category Section -->
+<section style="margin-bottom: 50px;">
+  <div class="section-header">
+    <span class="section-tag">Curated Selections</span>
+    <h2 class="section-title">Shop by Category</h2>
+  </div>
+
+  <div class="category-grid">
+    {% for cat in all_categories %}
+      <a href="{{ url_for('products', category=cat.id) }}" class="category-card">
+        <div class="category-icon">
+          {% if 'Jewellery' in cat.name %}
+            <i class="fa fa-gem"></i>
+          {% elif 'Gifts' in cat.name %}
+            <i class="fa fa-gift"></i>
+          {% elif 'Pet' in cat.name %}
+            <i class="fa fa-paw"></i>
+          {% elif 'Accessories' in cat.name %}
+            <i class="fa fa-ring"></i>
+          {% else %}
+            <i class="fa fa-star"></i>
+          {% endif %}
+        </div>
+        <div class="category-name">{{ cat.name }}</div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Featured Products Section -->
+<section style="margin-bottom: 50px;">
+  <div class="section-header">
+    <span class="section-tag">Handpicked Essentials</span>
+    <h2 class="section-title">Featured Products</h2>
+  </div>
+
+  <div class="product-grid">
+    {% for product in featured_products %}
+      <div class="product-card">
+        <!-- Badges -->
+        <div class="product-badge-wrap">
+          {% if product.discount > 0 %}
+            <span class="badge-discount">-{{ product.discount }}% OFF</span>
+          {% endif %}
+          {% if product.stock <= 5 and product.stock > 0 %}
+            <span class="badge-stock">Only {{ product.stock }} Left</span>
+          {% endif %}
+        </div>
+
+        <!-- Wishlist Button -->
+        <a href="{{ url_for('add_to_wishlist', product_id=product.id) }}" class="wishlist-toggle" title="Add to Wishlist">
+          <i class="far fa-heart"></i>
+        </a>
+
+        <!-- Product Image -->
+        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-image-wrap">
+          <img src="{{ product.image or 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80' }}" alt="{{ product.name }}" loading="lazy">
+        </a>
+
+        <!-- Product Details -->
+        <div class="product-info">
+          <div class="product-category">{{ product.category.name if product.category else 'Foreverr Exclusive' }}</div>
+          <h3 class="product-title">
+            <a href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a>
+          </h3>
+
+          <div class="product-rating">
+            <i class="fa fa-star"></i>
+            <span>{{ product.average_rating if product.average_rating > 0 else '5.0' }}</span>
+            <span class="rating-count">({{ product.review_count if product.review_count > 0 else 1 }})</span>
+          </div>
+
+          <div class="product-price-row">
+            <span class="price-current">₹{{ "%.2f"|format(product.price) }}</span>
+            {% if product.original_price and product.original_price > product.price %}
+              <span class="price-original">₹{{ "%.2f"|format(product.original_price) }}</span>
+            {% endif %}
+          </div>
+
+          <div class="product-actions">
+            <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST">
+              <input type="hidden" name="quantity" value="1">
+              <button type="submit" class="btn btn-primary btn-sm btn-block">
+                <i class="fa fa-shopping-bag"></i> Add to Cart
+              </button>
+            </form>
+            <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline btn-sm" title="Quick View">
+              <i class="fa fa-eye"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div style="text-align: center;">
+    <a href="{{ url_for('products') }}" class="btn btn-outline btn-lg">Explore All Products</a>
+  </div>
+</section>
+
+<!-- Promotional Banner -->
+<section class="promo-banner">
+  <div class="promo-content">
+    <span class="promo-tag">Special Limited Promotion</span>
+    <h3 class="promo-title">Custom Engraved Keepsakes</h3>
+    <p style="color:#555; margin-bottom:20px; font-size:1.05rem;">
+      Make every milestone truly unforgettable. Personalise with your initials, dates, or custom coordinates.
+    </p>
+    <a href="{{ url_for('products', category=2) }}" class="btn btn-primary">Personalise Now</a>
+  </div>
+  <div style="max-width: 320px;">
+    <img src="https://images.unsplash.com/photo-1611591475819-79b8b73c2c31?auto=format&fit=crop&w=800&q=80" alt="Personalised Bracelet" style="border-radius:12px; box-shadow:var(--shadow-md);">
+  </div>
+</section>
+
+<!-- Customer Reviews Section -->
+<section style="margin-bottom: 50px;">
+  <div class="section-header">
+    <span class="section-tag">Loved by Customers</span>
+    <h2 class="section-title">What Our Patrons Say</h2>
+  </div>
+
+  <div class="reviews-grid">
+    {% for review in recent_reviews %}
+      <div class="review-card">
+        <div class="stars">
+          {% for i in range(review.rating) %}
+            <i class="fa fa-star"></i>
+          {% endfor %}
+        </div>
+        <p class="review-comment">"{{ review.comment }}"</p>
+        <div class="reviewer-name">— {{ review.buyer.name }}</div>
+        <small style="color:var(--text-muted); font-size:0.8rem;">Verified Buyer</small>
+      </div>
+    {% else %}
+      <div class="review-card">
+        <div class="stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+        <p class="review-comment">"The heart pendant arrived in the most elegant packaging. Superior craftsmanship!"</p>
+        <div class="reviewer-name">— Tanya S.</div>
+      </div>
+      <div class="review-card">
+        <div class="stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+        <p class="review-comment">"Customized a bracelet for my anniversary. The engraving is neat and precise."</p>
+        <div class="reviewer-name">— Rohan M.</div>
+      </div>
+      <div class="review-card">
+        <div class="stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+        <p class="review-comment">"Our golden retriever looks dapper with the brass tag. Sturdy and waterproof."</p>
+        <div class="reviewer-name">— Ananya K.</div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Newsletter / Subscription Box -->
+<section class="newsletter-box">
+  <h3>Join the Foreverr Club</h3>
+  <p>Receive exclusive invitations to preview new seasonal launches and private sales.</p>
+  <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for subscribing to Foreverr!');">
+    <input type="email" placeholder="Enter your email address" required>
+    <button type="submit" class="btn btn-gold">Subscribe</button>
+  </form>
+</section>
+
+{% endblock %}

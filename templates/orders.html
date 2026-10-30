@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders – FOREVERR{% endblock %}
+
+{% block content %}
+
+<div style="margin-bottom: 28px;">
+  <h1 style="font-size: 2.2rem; margin-bottom: 6px;">My Order History</h1>
+  <p style="color:var(--text-muted);">Track your shipments and review order details</p>
+</div>
+
+{% if orders %}
+  <div style="display:flex; flex-direction:column; gap:20px;">
+    {% for order in orders %}
+      <div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-light); padding-bottom:14px; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3 style="font-size:1.15rem; color:var(--primary); margin-bottom:4px;">Order #{{ order.id }}</h3>
+            <span style="font-size:0.85rem; color:var(--text-muted);">Placed on {{ order.created_at.strftime('%d %B %Y, %I:%M %p') }}</span>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center;">
+            <!-- Payment Badge -->
+            <span class="badge" style="background:#e8f0eb; color:var(--primary); font-size:0.8rem; padding:4px 8px;">
+              {{ order.payment_method }} : {{ order.payment_status }}
+            </span>
+            <!-- Order Status Badge -->
+            <span class="badge" style="background:var(--primary); font-size:0.8rem; padding:4px 10px;">
+              {{ order.status }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Products Preview in this Order -->
+        <div style="display:flex; gap:16px; align-items:center; margin-bottom:16px; flex-wrap:wrap;">
+          {% for item in order.items %}
+            <div style="display:flex; align-items:center; gap:8px; background:#faf8f2; border:1px solid var(--border-light); padding:6px 10px; border-radius:6px; font-size:0.85rem;">
+              {% if item.product and item.product.image %}
+                <img src="{{ item.product.image }}" alt="{{ item.product.name }}" style="width:32px; height:32px; object-fit:cover; border-radius:4px;">
+              {% endif %}
+              <span>{{ item.product.name if item.product else 'Artisan Piece' }} (x{{ item.quantity }})</span>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border-light); padding-top:14px;">
+          <div>
+            <span style="font-size:0.88rem; color:var(--text-muted);">Total Order Amount:</span>
+            <strong style="font-size:1.15rem; color:var(--primary); margin-left:6px;">₹{{ "%.2f"|format(order.final_amount) }}</strong>
+          </div>
+          <div>
+            <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-outline btn-sm">
+              <i class="fa fa-eye"></i> View Details & Tracking
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div style="background:white; border:1px solid var(--border-light); border-radius:12px; padding:60px 20px; text-align:center;">
+    <i class="fa fa-box-open" style="font-size:3.5rem; color:var(--border-light); margin-bottom:18px;"></i>
+    <h2 style="font-size:1.8rem; margin-bottom:10px;">No Orders Found</h2>
+    <p style="color:var(--text-muted); margin-bottom:24px;">You have not placed any orders yet.</p>
+    <a href="{{ url_for('products') }}" class="btn btn-primary btn-lg">Start Shopping</a>
+  </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account – FOREVERR{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-header">
+    <h2>Create an Account</h2>
+    <p style="color:var(--text-muted); font-size:0.9rem;">Join Foreverr as a Buyer or Seller</p>
+  </div>
+
+  <form action="{{ url_for('register') }}" method="POST" class="validate-password-form">
+    <!-- Full Name -->
+    <div class="form-group">
+      <label class="form-label" for="name">Full Name</label>
+      <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Maya Sharma" required autofocus>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label class="form-label" for="email">Email Address</label>
+      <input type="email" id="email" name="email" class="form-control" placeholder="maya@example.com" required>
+    </div>
+
+    <!-- Account Role Selection -->
+    <div class="form-group">
+      <label class="form-label">Account Type</label>
+      <div style="display:flex; gap:16px; margin-top:6px;">
+        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500;">
+          <input type="radio" name="role" value="buyer" checked style="accent-color:var(--primary);"> Buyer (Customer)
+        </label>
+        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500;">
+          <input type="radio" name="role" value="seller" style="accent-color:var(--primary);"> Seller (Merchant)
+        </label>
+      </div>
+    </div>
+
+    <!-- 6-digit Password -->
+    <div class="form-group">
+      <label class="form-label" for="reg_password">6-Digit Password</label>
+      <input type="password" id="reg_password" name="password" class="form-control" placeholder="••••••" maxlength="6" minlength="6" required>
+      <div class="form-hint">Must be exactly 6 characters or digits long</div>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="form-group">
+      <label class="form-label" for="confirm_password">Confirm 6-Digit Password</label>
+      <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="••••••" maxlength="6" minlength="6" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:10px;">
+      Register Account
+    </button>
+  </form>
+
+  <div style="text-align:center; margin-top:20px; font-size:0.9rem;">
+    Already have an account? <a href="{{ url_for('login') }}" style="color:var(--primary); font-weight:600;">Sign In</a>
+  </div>
+</div>
+{% endblock %}

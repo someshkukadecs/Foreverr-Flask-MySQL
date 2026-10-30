@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}FOREVERR – Modern Jewellery & Personalised Gifts{% endblock %}</title>
+  
+  <!-- Google Fonts: Playfair Display for luxury headings, Inter for clean body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome CDN for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    ✨ Free Express Shipping on orders over ₹999 | Handcrafted Pieces & Personalised Keepsakes
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <!-- Brand Logo -->
+      <a href="{{ url_for('index') }}" class="brand-logo">
+        FOREVERR<span>.</span>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="nav-search">
+        <form action="{{ url_for('products') }}" method="GET">
+          <input type="text" name="search" placeholder="Search jewellery, gifts, pet tags..." value="{{ request.args.get('search', '') }}">
+          <button type="submit" title="Search"><i class="fa fa-search"></i></button>
+        </form>
+      </div>
+
+      <!-- Navigation Links -->
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+        <li><a href="{{ url_for('products') }}" class="nav-link">Shop</a></li>
+
+        {% if current_user %}
+          {% if current_user.role == 'seller' %}
+            <li><a href="{{ url_for('seller_dashboard') }}" class="nav-link"><i class="fa fa-store"></i> Seller Panel</a></li>
+          {% elif current_user.role == 'admin' %}
+            <li><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fa fa-shield-alt"></i> Admin Panel</a></li>
+          {% endif %}
+        {% endif %}
+      </ul>
+
+      <!-- User Actions (Wishlist, Cart, Profile, Login) -->
+      <div class="nav-actions">
+        {% if current_user %}
+          <!-- Wishlist -->
+          <a href="{{ url_for('wishlist') }}" class="action-btn" title="Wishlist">
+            <i class="far fa-heart"></i>
+            {% if wishlist_count > 0 %}
+              <span class="badge">{{ wishlist_count }}</span>
+            {% endif %}
+          </a>
+
+          <!-- Cart -->
+          <a href="{{ url_for('cart') }}" class="action-btn" title="Shopping Cart">
+            <i class="fa fa-shopping-bag"></i>
+            {% if cart_count > 0 %}
+              <span class="badge">{{ cart_count }}</span>
+            {% endif %}
+          </a>
+
+          <!-- Profile & Role Tag -->
+          <a href="{{ url_for('profile') }}" class="action-btn" title="My Account">
+            <i class="far fa-user-circle"></i>
+            <span class="role-tag">{{ current_user.role }}</span>
+          </a>
+
+          <!-- Logout -->
+          <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm" title="Log Out">
+            <i class="fa fa-sign-out-alt"></i>
+          </a>
+
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Log In</a>
+          <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register</a>
+        {% endif %}
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation">
+          <i class="fa fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Flash Notifications -->
+  <div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'error' else 'danger' }}">
+            <span><i class="fa fa-info-circle"></i> {{ message }}</span>
+            <span style="cursor:pointer;" onclick="this.parentElement.remove();">&times;</span>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Page Content -->
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-col">
+        <h3 class="brand-logo" style="color:white; margin-bottom:14px;">FOREVERR<span>.</span></h3>
+        <p>
+          Timeless artisanal jewellery, personalised keepsake accessories, and pet treasures.
+          Designed to celebrate unforgettable memories with modern elegance.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul class="footer-links">
+          <li><a href="{{ url_for('products') }}">All Collections</a></li>
+          <li><a href="{{ url_for('products', min_discount=20) }}">Special Offers</a></li>
+          <li><a href="{{ url_for('products', sort='popular') }}">Best Sellers</a></li>
+          <li><a href="{{ url_for('products', sort='newest') }}">New Arrivals</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Account & Help</h4>
+        <ul class="footer-links">
+          {% if current_user %}
+            <li><a href="{{ url_for('profile') }}">My Profile</a></li>
+            <li><a href="{{ url_for('orders') }}">My Orders</a></li>
+            <li><a href="{{ url_for('wishlist') }}">My Wishlist</a></li>
+            <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+          {% else %}
+            <li><a href="{{ url_for('login') }}">Sign In</a></li>
+            <li><a href="{{ url_for('register') }}">Create Account</a></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Demo Project Info</h4>
+        <p>
+          TYCS College Mini-Project<br>
+          <strong>Tech Stack:</strong> Python, Flask, MySQL, PyMySQL, HTML5, CSS3, JavaScript.<br>
+          Designed with love for viva presentation.
+        </p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      &copy; {{ year }} FOREVERR E-Commerce. All rights reserved. Created for TYCS College Mini-Project.
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

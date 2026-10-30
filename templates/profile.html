@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile – FOREVERR{% endblock %}
+
+{% block content %}
+
+<div style="margin-bottom: 28px;">
+  <h1 style="font-size: 2.2rem; margin-bottom: 6px;">Account Settings</h1>
+  <p style="color:var(--text-muted);">Manage your personal details and account credentials</p>
+</div>
+
+<div class="checkout-grid">
+  <!-- LEFT: EDIT NAME & CHANGE PASSWORD -->
+  <div>
+    <!-- Personal Information Form -->
+    <div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm); margin-bottom:24px;">
+      <h3 style="font-size:1.25rem; margin-bottom:16px; color:var(--primary);">
+        <i class="fa fa-user"></i> Personal Information
+      </h3>
+
+      <form action="{{ url_for('profile') }}" method="POST">
+        <input type="hidden" name="action" value="update_info">
+        
+        <div class="form-group">
+          <label class="form-label" for="name">Full Name</label>
+          <input type="text" id="name" name="name" class="form-control" value="{{ user.name }}" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-control" value="{{ user.email }}" disabled style="background:#eee; cursor:not-allowed;">
+          <div class="form-hint">Email cannot be modified once registered.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Account Role</label>
+          <div><span class="role-tag">{{ user.role }}</span></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Member Since</label>
+          <div style="font-size:0.9rem; color:#666;">{{ user.created_at.strftime('%d %B %Y') }}</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+      </form>
+    </div>
+
+    <!-- Change 6-Digit Password Form -->
+    <div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+      <h3 style="font-size:1.25rem; margin-bottom:16px; color:var(--primary);">
+        <i class="fa fa-key"></i> Update 6-Digit Password
+      </h3>
+
+      <form action="{{ url_for('profile') }}" method="POST" class="validate-password-form">
+        <input type="hidden" name="action" value="change_password">
+
+        <div class="form-group">
+          <label class="form-label" for="old_password">Current 6-Digit Password</label>
+          <input type="password" id="old_password" name="old_password" class="form-control" placeholder="••••••" maxlength="6" minlength="6" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="new_password">New 6-Digit Password</label>
+          <input type="password" id="new_password" name="password" class="form-control" placeholder="••••••" maxlength="6" minlength="6" required>
+          <div class="form-hint">Must be exactly 6 characters or digits long</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirm_password">Confirm New Password</label>
+          <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="••••••" maxlength="6" minlength="6" required>
+        </div>
+
+        <button type="submit" class="btn btn-outline btn-sm">Change Password</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- RIGHT: QUICK ACCESS & RECENT ORDERS -->
+  <div>
+    <div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm); margin-bottom:24px;">
+      <h3 style="font-size:1.25rem; margin-bottom:16px; color:var(--primary);">Quick Navigation</h3>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <a href="{{ url_for('orders') }}" class="btn btn-outline btn-block" style="text-align:left; justify-content:flex-start;">
+          <i class="fa fa-box"></i> View All Orders
+        </a>
+        <a href="{{ url_for('wishlist') }}" class="btn btn-outline btn-block" style="text-align:left; justify-content:flex-start;">
+          <i class="fa fa-heart"></i> View My Wishlist ({{ wishlist_count }})
+        </a>
+        <a href="{{ url_for('cart') }}" class="btn btn-outline btn-block" style="text-align:left; justify-content:flex-start;">
+          <i class="fa fa-shopping-bag"></i> View Cart ({{ cart_count }})
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Orders Snapshot -->
+    <div style="background:white; border:1px solid var(--border-light); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+      <h3 style="font-size:1.25rem; margin-bottom:16px; color:var(--primary);">Recent Orders</h3>
+      {% if recent_orders %}
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          {% for o in recent_orders %}
+            <div style="border-bottom:1px solid var(--border-light); padding-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <a href="{{ url_for('order_detail', order_id=o.id) }}" style="font-weight:600; color:var(--primary);">Order #{{ o.id }}</a>
+                <div style="font-size:0.8rem; color:#666;">₹{{ "%.2f"|format(o.final_amount) }} • {{ o.status }}</div>
+              </div>
+              <a href="{{ url_for('order_detail', order_id=o.id) }}" class="btn btn-outline btn-sm">View</a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="color:var(--text-muted); font-size:0.9rem;">No orders placed yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

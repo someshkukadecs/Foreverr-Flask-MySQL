@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Page Not Found (404) – FOREVERR{% endblock %}
+
+{% block content %}
+<div style="background:white; border:1px solid var(--border-light); border-radius:14px; padding:70px 20px; text-align:center; max-width:600px; margin:40px auto; box-shadow:var(--shadow-sm);">
+  <h1 style="font-size:4rem; color:var(--primary); margin-bottom:10px;">404</h1>
+  <h2 style="font-size:1.8rem; margin-bottom:12px;">Piece Not Found</h2>
+  <p style="color:var(--text-muted); margin-bottom:28px;">
+    The page or product you are looking for may have been moved, renamed, or is currently unavailable.
+  </p>
+  <div style="display:flex; justify-content:center; gap:14px;">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Return Home</a>
+    <a href="{{ url_for('products') }}" class="btn btn-outline">Explore Products</a>
+  </div>
+</div>
+{% endblock %}

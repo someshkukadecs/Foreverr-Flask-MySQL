@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmed – FOREVERR{% endblock %}
+
+{% block content %}
+
+<div class="success-banner">
+  <div class="success-check-icon">
+    <i class="fa fa-check"></i>
+  </div>
+
+  <span class="role-tag" style="background:#e8f5e9; color:#2e7d32; font-size:0.85rem; padding:4px 12px;">Order Placed Successfully</span>
+
+  <h1 style="font-size: 2.2rem; margin: 14px 0 8px; color:var(--primary);">
+    Thank You for Shopping with Foreverr!
+  </h1>
+  <p style="color:var(--text-muted); font-size:1rem; margin-bottom:28px;">
+    Your order has been recorded and an email confirmation receipt has been dispatched.
+  </p>
+
+  <!-- Receipt Information Card -->
+  <div style="background:#faf8f2; border:1px solid var(--border-light); border-radius:8px; padding:22px; text-align:left; margin-bottom:28px; font-size:0.95rem;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border-light); padding-bottom:8px;">
+      <strong>Order ID:</strong>
+      <span style="font-weight:700; color:var(--primary);">#{{ order.id }}</span>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+      <span style="color:var(--text-muted);">Payment Method:</span>
+      <span style="font-weight:600;">{{ order.payment_method }}</span>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+      <span style="color:var(--text-muted);">Payment Status:</span>
+      <span>
+        {% if order.payment_status == 'Success' %}
+          <span class="badge" style="background:var(--success);">Success</span>
+        {% else %}
+          <span class="badge" style="background:var(--warning); color:#333;">Pending (Cash on Delivery)</span>
+        {% endif %}
+      </span>
+    </div>
+
+    {% if order.transaction_id and order.transaction_id != 'N/A' %}
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <span style="color:var(--text-muted);">Transaction ID:</span>
+        <code style="background:#eae6da; padding:2px 6px; border-radius:4px; font-weight:600;">{{ order.transaction_id }}</code>
+      </div>
+    {% endif %}
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+      <span style="color:var(--text-muted);">
+        {% if order.payment_method == 'COD' %}Amount to Pay on Delivery:{% else %}Amount Paid:{% endif %}
+      </span>
+      <span style="font-weight:700; font-size:1.1rem; color:var(--primary);">₹{{ "%.2f"|format(order.final_amount) }}</span>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border-light); padding-top:8px;">
+      <span style="color:var(--text-muted);">Order Status:</span>
+      <span class="badge" style="background:var(--primary);">{{ order.status }}</span>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+    <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-primary btn-lg">
+      <i class="fa fa-receipt"></i> View Order Details & Tracking
+    </a>
+    <a href="{{ url_for('products') }}" class="btn btn-outline btn-lg">
+      <i class="fa fa-shopping-bag"></i> Continue Shopping
+    </a>
+  </div>
+</div>
+
+{% endblock %}

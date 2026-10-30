@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Error (500) – FOREVERR{% endblock %}
+
+{% block content %}
+<div style="background:white; border:1px solid var(--border-light); border-radius:14px; padding:70px 20px; text-align:center; max-width:600px; margin:40px auto; box-shadow:var(--shadow-sm);">
+  <h1 style="font-size:4rem; color:var(--danger); margin-bottom:10px;">500</h1>
+  <h2 style="font-size:1.8rem; margin-bottom:12px;">Unexpected Hiccup</h2>
+  <p style="color:var(--text-muted); margin-bottom:28px;">
+    An internal server error occurred while processing your request. Please ensure MySQL database is running and refresh the page.
+  </p>
+  <div style="display:flex; justify-content:center; gap:14px;">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Return Home</a>
+  </div>
+</div>
+{% endblock %}
